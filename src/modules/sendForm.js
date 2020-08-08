@@ -105,7 +105,12 @@ const sendForm = () => {
             formData.forEach((val, key) => {
                 body[key] = val;
             });
-            body["user_question"] = document.querySelector('input[name="user_quest"]').value;
+
+            //если поля заполнены, отправлять их на сервер
+            if (document.querySelector('input[name="user_quest"]').value.length > 0) {
+                body["user_question"] = document.querySelector('input[name="user_quest"]').value;
+            }
+
             // eslint-disable-next-line no-use-before-define
             postData(body)
                 .then(response => {
