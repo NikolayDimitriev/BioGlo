@@ -9,15 +9,22 @@ const togglePopUp = () => {
         const target = e.target;
 
         //открытие модального окна по кнопке "перезвоните"
-        if (target.closest('.call-btn')) {
+        if (target.closest('.construct-btn.call-btn') && target.closest('.constructor')) {
             e.preventDefault();
-            popUpCall.style.cssText = 'display: block; opacity: 1;';
-            popUpCall.classList.add('active-popup');
+            popUpDiscount.querySelector('form').classList.add('calc-form');
+            popUpDiscount.style.cssText = 'display: block; opacity: 1;';
+            popUpDiscount.classList.add('active-popup');
         //открытие модального окна по кнопке "узнать цену по скидке"
         } else if (target.closest('.discount-btn')) {
             e.preventDefault();
+            popUpDiscount.querySelector('form').classList.remove('calc-form');
             popUpDiscount.style.cssText = 'display: block; opacity: 1;';
             popUpDiscount.classList.add('active-popup');
+        //открытие окна по кнопке в калькуляторе
+        } else if (target.closest('.call-btn')) {
+            e.preventDefault();
+            popUpCall.style.cssText = 'display: block; opacity: 1;';
+            popUpCall.classList.add('active-popup');
         //открытие модального окна по кнопке "получить чек-лист"
         } else if (target.closest('.check-btn')) {
             popUpCheck.style.cssText = 'display: block; opacity: 1;';

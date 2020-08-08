@@ -1,4 +1,12 @@
 const sendForm = () => {
+    const accordion = document.getElementById('accordion'),
+        allSelect = [...accordion.querySelectorAll('select')];
+    
+    const statusMessage = document.createElement('img');
+    statusMessage.src = './img/ajax-loader.gif';
+    const successMessage = document.createElement('div');
+    successMessage.style.cssText = 'font-size: 2rem;';
+    successMessage.textContent = 'Ваша заявка принята';
 
     //маска
     function maskPhone(selector, masked = '+7 (___) ___-__-__') {
@@ -62,18 +70,18 @@ const sendForm = () => {
     document.querySelectorAll('form').forEach(form => {
 
         //блокировка отправки формы
-        form.querySelector('button').disabled = true;
+        form.querySelector('button[type="submit"]').disabled = true;
         form.querySelectorAll('input').forEach(item => {
             item.addEventListener('input', () => {
                 //блокировка кнопки отправки, если недостаточно цифр
                 if (form.querySelector('input[name="user_phone"]')) {
                     if (form.querySelector('input[name="user_phone"]').value.length === 18) {
-                        form.querySelector('button').disabled = false;
+                        form.querySelector('button[type="submit"]').disabled = false;
                     } else {
-                        form.querySelector('button').disabled = true;
+                        form.querySelector('button[type="submit"]').disabled = true;
                     }
 
-                    if (form.querySelector('button').disabled) {
+                    if (form.querySelector('button[type="submit"]').disabled) {
                         if (form.querySelector('input[name="user_phone"]').value.length !== 18) {
                             form.querySelector('input[name="user_phone"]').style.cssText = 'border: 2px solid red';
                         } else {
@@ -87,9 +95,9 @@ const sendForm = () => {
                 //блокировка кнопки если не достаточно символов в вопросе
                 if (form.querySelector('input[name="user_quest"]')) {
                     if (form.querySelector('input[name="user_quest"]').value.length >= 2) {
-                        form.querySelector('button').disabled = false;
+                        form.querySelector('button[type="submit"]').disabled = false;
                     } else {
-                        form.querySelector('button').disabled = true;
+                        form.querySelector('button[type="submit"]').disabled = true;
                     }
                 }
 
@@ -99,7 +107,7 @@ const sendForm = () => {
         //отправка формы
         form.addEventListener('submit', e => {
             e.preventDefault();
-
+            form.appendChild(statusMessage);
             const formData = new FormData(form);
             const body = {};
             formData.forEach((val, key) => {
@@ -111,12 +119,41 @@ const sendForm = () => {
                 body["user_question"] = document.querySelector('input[name="user_quest"]').value;
             }
 
-            // eslint-disable-next-line no-use-before-define
+            if (form.closest('.calc-form')) {
+                if (accordion.querySelector('#myonoffswitch').checked) {
+                    body["type"] = "Однокамерный";
+                    body["diameter"] = allSelect[0].options[allSelect[0].selectedIndex].textContent;
+                    body["count"] = allSelect[1].options[allSelect[1].selectedIndex].textContent;
+                    body["distance"] = accordion.querySelector('input[type="text"]').value;
+                    if (accordion.querySelector('#myonoffswitch-two').checked) {
+                        body["isBottom"] = "Есть";
+                    } else {
+                        body["isBottom"] = "Нет";
+                    }
+                    body["sum"] = document.querySelector('#calc-result').value;
+                } else {
+                    body["type"] = "Двухкамерный";
+                    body["diameter1"] = allSelect[0].options[allSelect[0].selectedIndex].textContent;
+                    body["count1"] = allSelect[1].options[allSelect[1].selectedIndex].textContent;
+                    body["diameter2"] = allSelect[2].options[allSelect[2].selectedIndex].textContent;
+                    body["count2"] = allSelect[3].options[allSelect[3].selectedIndex].textContent;
+                    body["distance"] = accordion.querySelector('input[type="text"]').value;
+                    if (accordion.querySelector('#myonoffswitch-two').checked) {
+                        body["isBottom"] = "Есть";
+                    } else {
+                        body["isBottom"] = "Нет";
+                    }
+                    body["sum"] = document.querySelector('#calc-result').value;
+                }
+            }
+
             postData(body)
                 .then(response => {
                     if (response.status !== 200) {
                         throw new Error('status network not 200.');
                     }
+                    form.removeChild(statusMessage);
+                    form.appendChild(successMessage);
                 })
                 .catch(error => console.error(error));
 
@@ -130,6 +167,7 @@ const sendForm = () => {
                 document.querySelector('.popup-discount').style.cssText = 'display: none;';
                 document.querySelector('.popup-check').style.cssText = 'display: none;';
                 document.querySelector('.popup-consultation').style.cssText = 'display: none;';
+                form.removeChild(successMessage);
             }, 3000);
 
 
